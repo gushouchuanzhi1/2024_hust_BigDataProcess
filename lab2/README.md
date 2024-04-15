@@ -4,6 +4,10 @@
 
 链接: https://pan.baidu.com/s/1bDf5qVuLU4KUxhhs5nGQJQ?pwd=i3hv 提取码: i3hv 复制这段内容后打开百度网盘手机App，操作更方便哦
 
+
+
+若分开安装Hadoop和Spark，请参考https://dblab.xmu.edu.cn/blog/804/
+
 ### 1.Spark配置相关的问题
 
 
@@ -45,4 +49,6 @@ bin/spark-shell
 
 
 ### 2.Java独立应用编程
+
+直接按照教程即可，应该没有问题
 
