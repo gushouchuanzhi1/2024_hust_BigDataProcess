@@ -2,6 +2,8 @@
 
 ### 第二部分实验流程：
 
+1.使用命令行来实现wordcount
+
 实际操作的文件路径为：/usr/local/hadoop/README.txt
 
 首先先在/usr/local/spark文件夹打开终端，输入bin/spark-shell启动spark
@@ -33,3 +35,82 @@ linesWithHadoop.count()
 
 
 
+2.scala语言实现wordcount‘
+
+
+
+在 ./sparkapp/src/main/scala 下建立一个名为 WordCountApp.scala 的文件（`vim ./sparkapp/src/main/scala/WordCountApp.scala`）
+
+```
+import java.io.File
+
+import scala.io.Source
+
+object WordCountApp {
+
+  def main(args: Array[String]): Unit = {
+   //文件路径
+   val filePath = "file:///usr/local/hadoop/README.txt "
+   val codec = "utf-8"
+   //打开文件
+   val file = Source.fromFile(filePath, codec) 
+   val wc = file.getLines().flatMap(_.split("\t")).toList.map((_, 1)).groupBy((_._1)).mapValues(_.size)
+
+println(wc)
+   // 关闭文件
+   file.close()
+  }
+ }
+
+
+```
+
+./sparkapp 中新建文件 simple.sbt（`vim ./sparkapp/simple.sbt`）
+
+```
+name := "Simple Project" 
+
+version := "1.0" 
+
+scalaVersion := "2.12.18" 
+
+libraryDependencies += "org.apache.spark" %% "spark-core" % "3.5.1" 
+```
+
+然后在/sparkapp文件夹中运行以下代码进行打包：
+
+```
+/usr/local/sbt/sbt package
+```
+
+打包完成之后使用： 记得需要修改成自己的scala版本
+
+```
+/usr/local/spark/bin/spark-submit --class "WordCountApp" ~/sparkapp/target/scala-2.12/simple-project_2.12-1.0.jar
+```
+
+
+
+3.还可以使用java独立编程
+
+
+
+### 第三部分实验流程：
+
+按照word文档中的提示逐步完成。
+
+首先在spark中创建文件夹mycode，然后创建streaming
+
+```
+mkdir /usr/local/spark/mycode
+
+mkdir /usr/local/spark/mycode/streaming
+```
+
+后续需要编写simple.sbt文件的脚本，这里面涉及scala和spark的版本号，在启动spark-shell后，可以直接观察到自己的对应版本号
+
+本部分首次打包的时候也会出现下载配置，请耐心等待
+
+<img src="C:\Users\古手川\AppData\Roaming\Typora\typora-user-images\image-20240416145613167.png" alt="image-20240416145613167" style="zoom: 67%;" />
+
+<img src="C:\Users\古手川\AppData\Roaming\Typora\typora-user-images\image-20240416145620927.png" alt="image-20240416145620927" style="zoom:67%;" />
