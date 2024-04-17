@@ -97,6 +97,8 @@ libraryDependencies += "org.apache.spark" %% "spark-core" % "3.5.1"
 
 ### 第三部分实验流程：
 
+这里可以参照word或者是网上博客内容：[Spark2.1.0入门：套接字流(DStream)_厦大数据库实验室博客 (xmu.edu.cn)](https://dblab.xmu.edu.cn/blog/1387/)
+
 按照word文档中的提示逐步完成。
 
 首先在spark中创建文件夹mycode，然后创建streaming
@@ -107,10 +109,26 @@ mkdir /usr/local/spark/mycode
 mkdir /usr/local/spark/mycode/streaming
 ```
 
-后续需要编写simple.sbt文件的脚本，这里面涉及scala和spark的版本号，在启动spark-shell后，可以直接观察到自己的对应版本号
+后续需要编写simple.sbt文件的脚本，这里面涉及scala和spark的版本号，在启动spark-shell后，可以直接观察到自己的对应版本号，
 
 本部分首次打包的时候也会出现下载配置，请耐心等待
 
 <img src="C:\Users\古手川\AppData\Roaming\Typora\typora-user-images\image-20240416145613167.png" alt="image-20240416145613167" style="zoom: 67%;" />
 
 <img src="C:\Users\古手川\AppData\Roaming\Typora\typora-user-images\image-20240416145620927.png" alt="image-20240416145620927" style="zoom:67%;" />
+
+打包完成之后，运行下列代码，记得在target文件夹中查看自己的对应的scala的版本号
+
+```
+cd /usr/local/spark/mycode/streaming
+
+/usr/local/spark/bin/spark-submit --class   "org.apache.spark.examples.streaming.NetworkWordCount" /usr/local/spark/mycode/streaming/target/scala-2.12/simple-project_2.12-1.0.jar localhost 9999
+```
+
+在运行上述jar包后，当前的终端窗口会报告time以及connection refused的错误，这是由于我们还没有启动nc窗口，再打开一个窗口，输入以下代码即可。
+
+```
+nc -lk 9999
+```
+
+![image-20240417125321377](C:\Users\古手川\AppData\Roaming\Typora\typora-user-images\image-20240417125321377.png)
