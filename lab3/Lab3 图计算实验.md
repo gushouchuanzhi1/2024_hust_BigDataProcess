@@ -1,3 +1,5 @@
 本次实验使用Spark中的graphx库来实现图计算内容
 
 实验二，完成dfs算法，这里因为需要使用命令行来执行dfs程序，所以使用scala语言按照lab2的过程来完成即可
+
+在scala中导入graphx库还需要在simple.sbt文件中修改将spark-core改为spark-graphx
