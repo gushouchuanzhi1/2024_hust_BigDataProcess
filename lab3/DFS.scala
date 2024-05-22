@@ -1,5 +1,7 @@
 import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.graphx._
+import org.apache.spark.
+import org.apache.spark.graphx.
+import org.apache.spark.rdd.RDD
 
 object GraphXDFSStats {
   def main(args: Array[String]): Unit = {
