@@ -1,118 +1,75 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class PageRank {
-    // 网页数
-    private int numPages;
-    // 邻接矩阵
-    private int[][] adjacencyMatrix;
-    // 阻尼系数
-    private double dampingFactor;
-    // 迭代次数
-    private int iterations;
-    // PageRank 值
-    private double[] pageRanks;
-
-    // 构造函数
-    public PageRank(int numPages, int[][] adjacencyMatrix, double dampingFactor, int iterations) {
-        this.numPages = numPages;
-        this.adjacencyMatrix = adjacencyMatrix;
-        this.dampingFactor = dampingFactor;
-        this.iterations = iterations;
-        this.pageRanks = new double[numPages];
+    public static class PageRankMapper extends Mapper<Object, Text, Text, Text> {
+        @Override
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String[] parts = value.toString().split(" ");
+            if (parts.length == 2) {
+                String fromNode = parts[0];
+                String toNode = parts[1];
+                context.write(new Text(fromNode), new Text("LINK:" + toNode));
+                context.write(new Text(toNode), new Text("PR:1.0"));
+            }
+        }
     }
 
-    // 从文件中读取数据并初始化 PageRank 对象
-    public static PageRank fromFile(String filename, double dampingFactor, int iterations) throws IOException {
-        List<int[]> edges = new ArrayList<>();
-        int numPages = 0;
-
-        // 读取文件
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-            String line;
-            int lineNumber = 0;
-            // 跳过前四行
-            while (lineNumber < 4 && (line = reader.readLine()) != null) {
-                lineNumber++;
-            }
-            // 读取数据行
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("\\s+");
-                int fromNodeId = Integer.parseInt(parts[0]);
-                int toNodeId = Integer.parseInt(parts[1]);
-                edges.add(new int[]{fromNodeId, toNodeId});
-            }
-            numPages = edges.stream().mapToInt(edge -> Math.max(edge[0], edge[1])).max().orElse(0);
-        }
-
-        // 构建邻接矩阵
-        int[][] adjacencyMatrix = new int[numPages][numPages];
-        for (int[] edge : edges) {
-            adjacencyMatrix[edge[0] - 1][edge[1] - 1] = 1;
-        }
-
-        return new PageRank(numPages, adjacencyMatrix, dampingFactor, iterations);
-    }
-
-    // 计算 PageRank
-    public void calculatePageRank() {
-        // 初始化 PageRank 值
-        Arrays.fill(pageRanks, 1.0 / numPages);
-
-        // 迭代计算
-        for (int iter = 0; iter < iterations; iter++) {
-            double[] newPageRanks = new double[numPages];
-
-            // 计算新的 PageRank 值
-            for (int i = 0; i < numPages; i++) {
-                double sum = 0.0;
-                for (int j = 0; j < numPages; j++) {
-                    if (adjacencyMatrix[j][i] == 1) {
-                        sum += pageRanks[j] / getOutDegree(j);
-                    }
+    public static class PageRankReducer extends Reducer<Text, Text, Text, DoubleWritable> {
+        @Override
+        public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            Set<String> outLinks = new HashSet<>();
+            double sumPageRank = 0.0;
+            for (Text val : values) {
+                String valStr = val.toString();
+                if (valStr.startsWith("LINK:")) {
+                    outLinks.add(valStr.substring(5));
+                } else if (valStr.startsWith("PR:")) {
+                    sumPageRank += Double.parseDouble(valStr.substring(3));
                 }
-                newPageRanks[i] = (1 - dampingFactor) / numPages + dampingFactor * sum;
             }
-
-            // 更新 PageRank 值
-            pageRanks = newPageRanks;
-        }
-    }
-
-    // 获取指定节点的出度
-    private int getOutDegree(int node) {
-        int outDegree = 0;
-        for (int i = 0; i < numPages; i++) {
-            if (adjacencyMatrix[node][i] == 1) {
-                outDegree++;
+            double newPageRank = 0.85 * sumPageRank + 0.15;
+            context.write(key, new DoubleWritable(newPageRank));
+            for (String link : outLinks) {
+                context.write(new Text(link), new Text("PR:" + newPageRank / outLinks.size()));
             }
         }
-        return outDegree;
     }
 
-    // 打印 PageRank 值
-    public void printPageRanks() {
-        System.out.println("PageRank Values:");
-        for (int i = 0; i < numPages; i++) {
-            System.out.println("Page " + (i + 1) + ": " + pageRanks[i]);
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new Configuration();
+        conf.set("fs.defaultFS", "hdfs://localhost:9000"); // 设置HDFS路径
+        String[] otherArgs = new String[]{"input", "output"}; // 指定输入输出路径
+        Path inputPath = new Path(otherArgs[0]);
+        Path outputPath = new Path(otherArgs[1]);
+        
+        FileSystem fs = FileSystem.get(conf);
+        if (fs.exists(outputPath)) {
+            fs.delete(outputPath, true);
         }
-    }
+        
+        Job job = Job.getInstance(conf, "PageRank");
+        job.setJarByClass(PageRank.class);
+        job.setMapperClass(PageRankMapper.class);
+        job.setReducerClass(PageRankReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+        FileInputFormat.addInputPath(job, inputPath);
+        FileOutputFormat.setOutputPath(job, outputPath);
 
-    public static void main(String[] args) {
-        String filename = "G:\\code\\idea\\PageRank\\src\\data.txt"; // 数据文件路径
-        double dampingFactor = 0.85;
-        int iterations = 100;
-
-        try {
-            PageRank pageRank = PageRank.fromFile(filename, dampingFactor, iterations);
-            pageRank.calculatePageRank();
-            pageRank.printPageRanks();
-        } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
-        }
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }
