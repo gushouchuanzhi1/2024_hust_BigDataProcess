@@ -1,5 +1,10 @@
 ## lab2 spark实验
 
+
+由于markdown文件不能很好的导入图片，重新将lab2实验.md写为lab2实验过程.docx，如果可以的话请使用typora来查看md文件，并且同时对照docx文件
+
+
+
 实验相关资源可见百度网盘：
 
 链接: https://pan.baidu.com/s/1bDf5qVuLU4KUxhhs5nGQJQ?pwd=i3hv 提取码: i3hv 复制这段内容后打开百度网盘手机App，操作更方便哦
