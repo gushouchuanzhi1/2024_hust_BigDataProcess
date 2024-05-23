@@ -19,65 +19,19 @@ libraryDependencies ++= Seq(
 )
 ```
 
+在运行jar包之前需要先
+
+start-dfs.sh打开hdfs服务
+
+然后将data数据上传到hdfs中
+
+hdfs dfs -put ./data /user/hadoop 即可
+
 运行jar包
 
-/usr/local/spark/bin/spark-submit --class "DFS" ~/lab3/target/scala-2.12/
-
 ```
-/usr/local/spark/bin/spark-submit --class "WordCountApp" ~/sparkapp/target/scala-2.12/simple-project_2.12-1.0.jar
+/usr/local/spark/bin/spark-submit --class "DFS" ~/lab3/target/scala-2.12/lab3_2.12-1.0.jar
 ```
 
 
-
-
-
-在 ./sparkapp/src/main/scala 下建立一个名为 WordCountApp.scala 的文件（`vim ./sparkapp/src/main/scala/WordCountApp.scala`）
-
-```
-import java.io.File
-
-import scala.io.Source
-
-object WordCountApp {
-
-  def main(args: Array[String]): Unit = {
-   //文件路径
-   val filePath = "file:///usr/local/hadoop/README.txt "
-   val codec = "utf-8"
-   //打开文件
-   val file = Source.fromFile(filePath, codec) 
-   val wc = file.getLines().flatMap(_.split("\t")).toList.map((_, 1)).groupBy((_._1)).mapValues(_.size)
-
-println(wc)
-   // 关闭文件
-   file.close()
-  }
- }
-
-
-```
-
-./sparkapp 中新建文件 simple.sbt（`vim ./sparkapp/simple.sbt`）
-
-```
-name := "Simple Project" 
-
-version := "1.0" 
-
-scalaVersion := "2.12.18" 
-
-libraryDependencies += "org.apache.spark" %% "spark-core" % "3.5.1" 
-```
-
-然后在/sparkapp文件夹中运行以下代码进行打包：
-
-```
-/usr/local/sbt/sbt package
-```
-
-打包完成之后使用： 记得需要修改成自己的scala版本
-
-```
-/usr/local/spark/bin/spark-submit --class "WordCountApp" ~/sparkapp/target/scala-2.12/simple-project_2.12-1.0.jar
-```
 
