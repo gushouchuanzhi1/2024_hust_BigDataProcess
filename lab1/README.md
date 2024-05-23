@@ -1,3 +1,6 @@
+本文件夹中pagerank和wordcount中为lab1所需的内容，需要在eclipse中借助hdfs服务来完成
+
+
 实验一的配置过程请参考以下内容（word文件中也可查看）
 
 1.通过虚拟机配置hadoop https://dblab.xmu.edu.cn/blog/2441/ 
@@ -33,3 +36,5 @@ sudo mv ./hadoop.jar ./Desktop/eclipse/plugins
 ```
 
 即可成功打开eclipse软件，详细请看林子雨老师的博客。
+
+
