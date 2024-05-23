@@ -1,0 +1,11 @@
+[info] Packaging /home/hadoop/GraphAlgorithms/target/scala-2.12/graphalgorithms_2.12-1.0.jar ...
+[debug] Input file mappings:
+[debug] 	DFS$.class
+[debug] 	  /home/hadoop/GraphAlgorithms/target/scala-2.12/classes/DFS$.class
+[debug] 	SCC.class
+[debug] 	  /home/hadoop/GraphAlgorithms/target/scala-2.12/classes/SCC.class
+[debug] 	SCC$.class
+[debug] 	  /home/hadoop/GraphAlgorithms/target/scala-2.12/classes/SCC$.class
+[debug] 	DFS.class
+[debug] 	  /home/hadoop/GraphAlgorithms/target/scala-2.12/classes/DFS.class
+[info] Done packaging.
