@@ -18,14 +18,11 @@ libraryDependencies ++= Seq(
         "org.apache.spark" %% "spark-graphx" % "3.5.1"
 )
 ```
+这一步根据你的程序中文件读取的位置来看
 
-在运行jar包之前需要先
+在运行jar包之前需要先start-dfs.sh打开hdfs服务
 
-start-dfs.sh打开hdfs服务
-
-然后将data数据上传到hdfs中
-
-hdfs dfs -put ./data /user/hadoop 即可
+然后将data数据上传到hdfs中hdfs dfs -put ./data /user/hadoop 即可
 
 运行jar包
 
